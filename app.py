@@ -16,9 +16,10 @@ CHROMA_DIR = "./chroma_db"
 COLLECTION_NAME = "legal_docs"
 EMBED_MODEL = "bkai-foundation-models/vietnamese-bi-encoder"
 
+# GROQ_API_KEY = os.getenv(
+#    "GROQ_API_KEY") or "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"
 GROQ_API_KEY = os.getenv(
-    "GROQ_API_KEY") or "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"
-
+    "GROQ_API_KEY")
 # =====================
 # INIT
 # =====================

@@ -24,12 +24,12 @@ GROQ_API_KEY = os.getenv(
 # =====================
 app = FastAPI(title="Vietnam Legal QA Chatbot")
 
-embeddings = HuggingFaceEmbeddings(model_name=EMBED_MODEL)
+# embeddings = HuggingFaceEmbeddings(model_name=EMBED_MODEL)
 
 vectordb = Chroma(
     persist_directory=CHROMA_DIR,
-    collection_name=COLLECTION_NAME,
-    embedding_function=embeddings,
+    collection_name=COLLECTION_NAME
+    # embedding_function=embeddings,
 )
 
 llm = ChatGroq(

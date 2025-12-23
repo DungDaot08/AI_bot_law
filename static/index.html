@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Chatbot Hỏi đáp Pháp luật</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background: #f4f6f8;
+        margin: 0;
+        padding: 0;
+      }
+
+      .container {
+        max-width: 900px;
+        margin: 40px auto;
+        background: #ffffff;
+        padding: 24px;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      }
+
+      h1 {
+        margin-top: 0;
+        color: #2c3e50;
+      }
+
+      textarea {
+        width: 100%;
+        min-height: 80px;
+        padding: 10px;
+        font-size: 15px;
+        border-radius: 6px;
+        border: 1px solid #ccc;
+        resize: vertical;
+      }
+
+      button {
+        margin-top: 12px;
+        padding: 10px 20px;
+        font-size: 15px;
+        border: none;
+        border-radius: 6px;
+        background: #007bff;
+        color: #fff;
+        cursor: pointer;
+      }
+
+      button:hover {
+        background: #0056b3;
+      }
+
+      .answer {
+        margin-top: 24px;
+        padding: 16px;
+        background: #f9f9f9;
+        border-left: 4px solid #007bff;
+        white-space: pre-wrap;
+      }
+
+      .sources {
+        margin-top: 20px;
+      }
+
+      .source-item {
+        font-size: 14px;
+        padding: 8px;
+        border-bottom: 1px dashed #ccc;
+      }
+
+      .source-item strong {
+        color: #2c3e50;
+      }
+
+      .loading {
+        margin-top: 10px;
+        color: #999;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>🤖 Chatbot Hỏi đáp Pháp luật</h1>
+
+      <label for="question"><strong>Nhập câu hỏi pháp luật:</strong></label>
+      <textarea
+        id="question"
+        placeholder="Ví dụ: Phương pháp tính thuế cho hộ kinh doanh"
+      ></textarea>
+
+      <button onclick="askQuestion()">Hỏi</button>
+
+      <div id="loading" class="loading" style="display: none">
+        ⏳ Đang tra cứu văn bản pháp luật...
+      </div>
+
+      <div id="answer" class="answer" style="display: none"></div>
+
+      <div id="sources" class="sources" style="display: none">
+        <h3>📚 Căn cứ pháp lý</h3>
+        <div id="sources-list"></div>
+      </div>
+    </div>
+
+    <script>
+      async function askQuestion() {
+        const question = document.getElementById("question").value.trim();
+        if (!question) {
+          alert("Vui lòng nhập câu hỏi");
+          return;
+        }
+
+        document.getElementById("loading").style.display = "block";
+        document.getElementById("answer").style.display = "none";
+        document.getElementById("sources").style.display = "none";
+
+        try {
+          const res = await fetch("http://127.0.0.1:8000/ask", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              question: question,
+              top_k: 6,
+            }),
+          });
+
+          const data = await res.json();
+
+          // Answer
+          const answerDiv = document.getElementById("answer");
+          answerDiv.innerText = data.answer;
+          answerDiv.style.display = "block";
+
+          // Sources
+          const sourcesList = document.getElementById("sources-list");
+          sourcesList.innerHTML = "";
+
+          data.sources.forEach((src, idx) => {
+            const div = document.createElement("div");
+            div.className = "source-item";
+            div.innerHTML = `
+        <strong>[${idx + 1}] ${
+              src.law_name || "Văn bản pháp luật"
+            }</strong><br/>
+        Điều: ${src.article || "-"} |
+        Khoản: ${src.clause || "-"} |
+        File: ${src.file || "-"}
+      `;
+            sourcesList.appendChild(div);
+          });
+
+          document.getElementById("sources").style.display = "block";
+        } catch (err) {
+          alert("Lỗi khi gọi API: " + err);
+        } finally {
+          document.getElementById("loading").style.display = "none";
+        }
+      }
+    </script>
+  </body>
+</html>
